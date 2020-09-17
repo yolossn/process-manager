@@ -1,0 +1,28 @@
+commands:
+  - command: "bash"
+    args:
+      - -c
+      - echo $PWD
+    envs:
+      - key: PWD
+        value: /Users/santhoshnagarajs/git/
+    maxRetries: 2
+  - command: ld
+    args:
+      - $PWD
+    envs:
+      - key: PWD
+        value: /Users/santhoshnagarajs/git/yolossn/proccess-manager
+    maxRetries: 100
+  - command: bash
+    args:
+      - -c
+      - sleep 1000
+    maxRetries: 2
+  - command: ls
+    maxRetries: 2
+  - command: bash
+    args:
+      - -c
+      - sleep 1
+    maxRetries: 2
