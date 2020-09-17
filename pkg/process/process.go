@@ -162,7 +162,7 @@ func (p *Process) Retries() int {
 
 // String returns the string representation of process.
 func (p Process) String() string {
-	return fmt.Sprintln(p.command.Path, p.command.Args)
+	return fmt.Sprint(p.command.Args)
 }
 
 func newCommand(ctx context.Context, command string, args []string, env []string, stdout *bytes.Buffer, stderr *bytes.Buffer) *exec.Cmd {
