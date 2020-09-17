@@ -79,12 +79,9 @@ func (m *manager) Run() chan struct{} {
 				} else {
 					m.failed++
 				}
-				m.mu.Unlock()
-
-				m.mu.RLock()
 				completed := m.completed
 				total := m.total
-				m.mu.RUnlock()
+				m.mu.Unlock()
 
 				if completed == total {
 					stop <- struct{}{}
