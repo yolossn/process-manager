@@ -12,6 +12,7 @@ import (
 	"github.com/yolossn/process-manager/pkg/config"
 )
 
+// Process is a wrapper of exec.cmd which takes care of retries based on the backoff strategy.
 type Process struct {
 	config  config.Command
 	command *exec.Cmd
@@ -36,7 +37,7 @@ type Process struct {
 	cancelFunc func()
 }
 
-// New creates a new process
+// New creates a new process.
 func New(conf config.Command) *Process {
 
 	bo := backoff.NewStaticBackoff(time.Second)
@@ -44,7 +45,7 @@ func New(conf config.Command) *Process {
 	return &Process{config: conf, maxRetries: conf.MaxRetries, backoff: bo, ctx: ctx, cancelFunc: cancel}
 }
 
-// Run the process until successful or until max tries is reached
+// Run the process until successful or until max tries is reached.
 func (p *Process) Run(complete chan *Process) {
 begin:
 	// Recreate command on every run
@@ -60,7 +61,6 @@ begin:
 
 	// Run command
 	err := p.command.Run()
-	fmt.Println(err)
 	if err != nil {
 
 		// If maxRetries is not reached
@@ -90,7 +90,7 @@ begin:
 }
 
 // Stop cancels the context of the process if it is not completed already.
-// Incase the process didn't start yet the cancelled context will raise an error once it is started
+// Incase the process didn't start yet the cancelled context will raise an error once it is started.
 func (p *Process) Stop() {
 
 	// stop process
@@ -107,26 +107,32 @@ func (p *Process) Stop() {
 
 }
 
+// IsSuccessful returns the success state.
 func (p *Process) IsSuccessful() bool {
 	return p.successful
 }
 
+// Output returns the stdout of the command.
 func (p *Process) Output() string {
 	return p.output.String()
 }
 
+// Error returns the stderr of the command.
 func (p *Process) Error() string {
 	return p.err.String()
 }
 
+// MaxRetries returns the maximum retries of the process.
 func (p *Process) MaxRetries() int {
 	return p.maxRetries
 }
 
+// Retries returns the number of times the process retried to run the command.
 func (p *Process) Retries() int {
 	return p.tryCount - 1
 }
 
+// String returns the string representation of process.
 func (p Process) String() string {
 	return fmt.Sprintln(p.command.Path, p.command.Args)
 }
@@ -140,9 +146,9 @@ func NewCommand(ctx context.Context, command string, args []string, env []string
 	// }
 
 	cmd := exec.CommandContext(ctx, command, args...)
-	// Add os environment for the process
 
 	// TODO: Not sure if the process must have access to current os env
+	// Add os environment for the process
 	// cmd.Env = os.Environ()
 
 	cmd.Env = append(cmd.Env, env...)

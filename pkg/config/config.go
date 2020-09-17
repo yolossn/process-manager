@@ -8,22 +8,25 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Config is a collection of commands.
 type Config struct {
 	Commands []Command `json:"commands" yaml:"commands"`
 }
 
+// Command defines the config for a command.
 type Command struct {
 	Command    string   `json:"command" yaml:"command"`
 	Args       []string `json:"args" yaml:"args"`
-	Envs       []Env    `json:"envs" yaml:"envs"`
+	Envs       []env    `json:"envs" yaml:"envs"`
 	MaxRetries int      `json:"maxRetries" yaml:"maxRetries"`
 }
 
-type Env struct {
+type env struct {
 	Key   string `json:"key" yaml:"key"`
 	Value string `json:"value" yaml:"value"`
 }
 
+// EnvStrings converts env key value to array of strings "key=value".
 func (c *Command) EnvStrings() []string {
 	var envStrings []string
 	for _, env := range c.Envs {
@@ -32,6 +35,7 @@ func (c *Command) EnvStrings() []string {
 	return envStrings
 }
 
+// FromYaml reads config from the yaml file.
 func FromYaml(file string) (*Config, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {

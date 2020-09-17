@@ -19,15 +19,15 @@ type Manager interface {
 }
 
 type manager struct {
-	completeChan chan *process.Process
 	total        int
 	completed    int
 	successful   int
 	failed       int
 	processes    []*process.Process
+	completeChan chan *process.Process
 }
 
-// New creates a new manager to manage the processes
+// New creates a new manager to manage the processes.
 func New(commands []config.Command) Manager {
 
 	var processes []*process.Process
@@ -42,10 +42,10 @@ func New(commands []config.Command) Manager {
 	}
 }
 
-// Run all the process and returns a chan to signal completion of all processes
+// Run all the process and returns a chan to signal completion of all processes.
 func (m *manager) Run() chan struct{} {
 
-	// channel for processes to signal completion
+	// channel for processes to signal completion.
 	completeChan := make(chan *process.Process, 1)
 
 	// Handle SIGKILL
@@ -85,7 +85,7 @@ func (m *manager) Run() chan struct{} {
 	return stop
 }
 
-// Stop all the processes and return
+// Stop all the processes and return.
 func (m *manager) Stop() {
 	// Stop all processes
 	for _, process := range m.processes {
@@ -95,12 +95,12 @@ func (m *manager) Stop() {
 	return
 }
 
-// SuccessCount returns the number of process which completed succesfully
+// SuccessCount returns the number of process which completed succesfully.
 func (m *manager) SuccessCount() int {
 	return m.successful
 }
 
-// FailCount returns the number of process which failed
+// FailCount returns the number of process which failed.
 func (m *manager) FailCount() int {
 	return m.failed
 }
