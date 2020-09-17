@@ -66,6 +66,7 @@ func (m *manager) Run() chan struct{} {
 		go process.Run(completeChan)
 	}
 
+	// Go routine to monitor the processes
 	stop := make(chan struct{})
 	go func() {
 		for {
@@ -73,6 +74,8 @@ func (m *manager) Run() chan struct{} {
 			case proc := <-completeChan:
 
 				m.mu.Lock()
+				// debug
+				//fmt.Println("completed", proc.String(), "\n\n")
 				m.completed++
 				if proc.IsSuccessful() {
 					m.successful++
@@ -84,8 +87,9 @@ func (m *manager) Run() chan struct{} {
 				m.mu.Unlock()
 
 				if completed == total {
+					close(completeChan)
 					stop <- struct{}{}
-					break
+					return
 				}
 			}
 		}
