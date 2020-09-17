@@ -53,7 +53,7 @@ begin:
 	// Recreate command on every run
 	// because once the command is Run it cannot be reused
 	var stdout, stderr bytes.Buffer
-	cmd := NewCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
+	cmd := newCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	p.mu.Lock()
@@ -160,7 +160,7 @@ func (p Process) String() string {
 	return fmt.Sprintln(p.command.Path, p.command.Args)
 }
 
-func NewCommand(ctx context.Context, command string, args []string, env []string, stdout *bytes.Buffer, stderr *bytes.Buffer) *exec.Cmd {
+func newCommand(ctx context.Context, command string, args []string, env []string, stdout *bytes.Buffer, stderr *bytes.Buffer) *exec.Cmd {
 
 	// TODO: Not sure if the args must be expanded
 	// expandedArgs := []string{}
