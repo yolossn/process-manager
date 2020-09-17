@@ -49,55 +49,60 @@ func New(conf config.Command) *Process {
 
 // Run the process until successful or until max tries is reached.
 func (p *Process) Run(complete chan *Process) {
-begin:
-	// Recreate command on every run
-	// because once the command is Run it cannot be reused
-	var stdout, stderr bytes.Buffer
-	cmd := newCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	p.mu.Lock()
-	p.output = &stdout
-	p.err = &stderr
-	p.command = cmd
-	p.tryCount++
-	p.mu.Unlock()
+	for {
+		// Recreate command on every run
+		// because once the command is Run it cannot be reused
+		var stdout, stderr bytes.Buffer
+		cmd := newCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		p.mu.Lock()
+		p.output = &stdout
+		p.err = &stderr
+		p.command = cmd
+		p.tryCount++
+		p.mu.Unlock()
 
-	// Run command
-	err := p.command.Run()
-	if err != nil {
+		// Run command
+		err := p.command.Run()
+		// debug
+		// fmt.Println(p.String(), "error:", err, "tryCount:", p.tryCount, "maxRetry:", p.maxRetries)
+		if err != nil {
 
-		// If maxRetries is not reached
-		if p.tryCount < p.maxRetries {
+			// If maxRetries is not reached
+			if p.tryCount < p.maxRetries {
 
-			// Backoff
-			backoffDuration := p.backoff.Duration()
-			time.Sleep(backoffDuration)
+				// Backoff
+				backoffDuration := p.backoff.Duration()
+				time.Sleep(backoffDuration)
 
-			// retry only if the process is not stopped
-			p.mu.RLock()
-			stop := p.stopped
-			p.mu.RUnlock()
-			if !stop {
-				goto begin
+				// retry only if the process is not stopped
+				p.mu.RLock()
+				stop := p.stopped
+				p.mu.RUnlock()
+				if !stop {
+					continue
+				}
 			}
+
+			// If the process is not retried set the process as completed and signal the manager
+			p.mu.Lock()
+			p.completed = true
+			p.mu.Unlock()
+			complete <- p
+			break
 		}
 
-		// If the process is not retried set the process as completed and signal the manager
+		// On success set the process as successful and completed.
 		p.mu.Lock()
 		p.completed = true
+		p.successful = true
 		p.mu.Unlock()
+		// signal the manager
 		complete <- p
-		return
+		break
 	}
-
-	// On success set the process as successful and completed.
-	p.mu.Lock()
-	p.completed = true
-	p.successful = true
-	p.mu.Unlock()
-	// signal the manager
-	complete <- p
+	return
 }
 
 // Stop cancels the context of the process if it is not completed already.
