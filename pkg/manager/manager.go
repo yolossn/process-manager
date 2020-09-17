@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/yolossn/process-manager/pkg/config"
@@ -26,6 +27,7 @@ type manager struct {
 	failed       int
 	processes    []*process.Process
 	completeChan chan *process.Process
+	mu           sync.RWMutex
 }
 
 // New creates a new manager to manage the processes.
@@ -70,13 +72,22 @@ func (m *manager) Run() chan struct{} {
 		for {
 			select {
 			case proc := <-completeChan:
+
+				m.mu.Lock()
 				m.completed++
 				if proc.IsSuccessful() {
 					m.successful++
 				} else {
 					m.failed++
 				}
-				if m.completed == m.total {
+				m.mu.Unlock()
+
+				m.mu.RLock()
+				completed := m.completed
+				total := m.total
+				m.mu.RUnlock()
+
+				if completed == total {
 					stop <- struct{}{}
 					break
 				}
@@ -98,11 +109,15 @@ func (m *manager) Stop() {
 
 // SuccessCount returns the number of process which completed succesfully.
 func (m *manager) SuccessCount() int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	return m.successful
 }
 
 // FailCount returns the number of process which failed.
 func (m *manager) FailCount() int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	return m.failed
 }
 
