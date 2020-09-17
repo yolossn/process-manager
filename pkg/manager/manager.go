@@ -16,6 +16,7 @@ type Manager interface {
 	Stop()              // Stops all the process and returns
 	SuccessCount() int
 	FailCount() int
+	Status() map[string]status
 }
 
 type manager struct {
@@ -112,11 +113,12 @@ type status struct {
 }
 
 // Status returns the status of each process as a map
-// func (m *manager) Status() map[string]status {
-// 	outputs := map[string]string{}
+func (m *manager) Status() map[string]status {
+	outputs := make(map[string]status)
 
-// 	for _, process := range m.processes {
-// 		outputs[process.String()] = process.Output()
-// 	}
-// 	return outputs
-// }
+	for _, process := range m.processes {
+		processStatus := status{Output: process.Output(), Err: process.Error(), IsSuccessful: process.IsSuccessful()}
+		outputs[process.String()] = processStatus
+	}
+	return outputs
+}
