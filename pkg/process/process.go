@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
-	"syscall"
 	"time"
 
 	"github.com/yolossn/process-manager/pkg/backoff"
@@ -155,6 +154,5 @@ func NewCommand(ctx context.Context, command string, args []string, env []string
 
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	return cmd
 }
