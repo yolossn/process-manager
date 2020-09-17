@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"sync"
 	"time"
 
 	"github.com/yolossn/process-manager/pkg/backoff"
@@ -34,6 +35,8 @@ type Process struct {
 
 	ctx        context.Context
 	cancelFunc func()
+
+	mu sync.RWMutex
 }
 
 // New creates a new process.
@@ -70,20 +73,27 @@ begin:
 			time.Sleep(backoffDuration)
 
 			// retry only if the process is not stopped
-			if !p.stopped {
+			p.mu.RLock()
+			stop := p.stopped
+			p.mu.RUnlock()
+			if !stop {
 				goto begin
 			}
 		}
 
 		// If the process is not retried set the process as completed and signal the manager
+		p.mu.Lock()
 		p.completed = true
+		p.mu.Unlock()
 		complete <- p
 		return
 	}
 
 	// On success set the process as successful and completed.
+	p.mu.Lock()
 	p.completed = true
 	p.successful = true
+	p.mu.Unlock()
 	// signal the manager
 	complete <- p
 }
@@ -92,6 +102,8 @@ begin:
 // Incase the process didn't start yet the cancelled context will raise an error once it is started.
 func (p *Process) Stop() {
 
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	// stop process
 	p.stopped = true
 
@@ -108,6 +120,8 @@ func (p *Process) Stop() {
 
 // IsSuccessful returns the success state.
 func (p *Process) IsSuccessful() bool {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.successful
 }
 
@@ -123,11 +137,15 @@ func (p *Process) Error() string {
 
 // MaxRetries returns the maximum retries of the process.
 func (p *Process) MaxRetries() int {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.maxRetries
 }
 
 // Retries returns the number of times the process retried to run the command.
 func (p *Process) Retries() int {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.tryCount - 1
 }
 
