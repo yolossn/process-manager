@@ -1,4 +1,14 @@
-<h1 align="center">Process Manager</h1>
+<div align="center">
+  
+  <h1 align="center">Process Manager</h1>
+  
+  <img src="https://github.com/yolossn/process-manager/workflows/build/badge.svg?branch=master"/>
+
+  <a href="https://goreportcard.com/report/github.com/yolossn/process-manager">
+    <img src="https://goreportcard.com/badge/github.com/yolossn/process-manager"/>
+  </a>
+</div>
+
 
 ## Design Decision
 
