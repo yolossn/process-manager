@@ -20,5 +20,4 @@ func TestFromFile(t *testing.T) {
 	conf, err = config.FromYaml("../../not_exists.yaml")
 	require.Error(t, err)
 	require.Nil(t, conf)
-
 }

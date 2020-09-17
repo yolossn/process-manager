@@ -9,7 +9,6 @@
   </a>
 </div>
 
-
 ## Design Decision
 
 1. Manager provides the process with command, backoff strategy and maxRetries. The process takes care of retries internally.
@@ -22,7 +21,6 @@
 
 1. Improve tests (Add table tests, increase coverage)
 2. Make backoff strategy configurable. Now it is a constant backoff of 1 second
-3. The use of GOTO statement in the process.Run is not the best version of readable code, can be changed to a loop with checks.
 
 ## Example
 

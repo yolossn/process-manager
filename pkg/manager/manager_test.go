@@ -51,5 +51,6 @@ func readConfig(t *testing.T, file string) []config.Command {
 
 	conf, err := config.FromYaml(file)
 	require.NoError(t, err)
+
 	return conf.Commands
 }

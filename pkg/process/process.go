@@ -51,7 +51,7 @@ func New(conf config.Command) *Process {
 func (p *Process) Run(complete chan *Process) {
 	for {
 		// Recreate command on every run
-		// because once the command is Run it cannot be reused
+		// because once the command is Run it cannot be reused.
 		var stdout, stderr bytes.Buffer
 		cmd := newCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
 		cmd.Stdout = &stdout
@@ -63,20 +63,20 @@ func (p *Process) Run(complete chan *Process) {
 		p.tryCount++
 		p.mu.Unlock()
 
-		// Run command
+		// Run command.
 		err := p.command.Run()
 		// debug
 		// fmt.Println(p.String(), "error:", err, "tryCount:", p.tryCount, "maxRetry:", p.maxRetries)
 		if err != nil {
 
-			// If maxRetries is not reached
+			// If maxRetries is not reached.
 			if p.tryCount < p.maxRetries {
 
-				// Backoff
+				// Backoff.
 				backoffDuration := p.backoff.Duration()
 				time.Sleep(backoffDuration)
 
-				// retry only if the process is not stopped
+				// retry only if the process is not stopped.
 				p.mu.RLock()
 				stop := p.stopped
 				p.mu.RUnlock()
@@ -85,7 +85,7 @@ func (p *Process) Run(complete chan *Process) {
 				}
 			}
 
-			// If the process is not retried set the process as completed and signal the manager
+			// If the process is not retried set the process as completed and signal the manager.
 			p.mu.Lock()
 			p.completed = true
 			p.mu.Unlock()
@@ -98,10 +98,11 @@ func (p *Process) Run(complete chan *Process) {
 		p.completed = true
 		p.successful = true
 		p.mu.Unlock()
-		// signal the manager
+		// signal the manager.
 		complete <- p
 		break
 	}
+
 	return
 }
 
@@ -111,18 +112,17 @@ func (p *Process) Stop() {
 
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	// stop process
+	// stop process.
 	p.stopped = true
 
-	// If the process is already completed return
+	// If the process is already completed return.
 	if p.completed {
 		return
 	}
 
 	// Refer: https://stackoverflow.com/questions/52346262/how-to-call-cancel-when-using-exec-commandcontext-in-a-goroutine
-	// Use the cancel function to kill the process
+	// Use the cancel function to kill the process.
 	p.cancelFunc()
-
 }
 
 // IsSuccessful returns the success state.
@@ -167,7 +167,7 @@ func (p Process) String() string {
 
 func newCommand(ctx context.Context, command string, args []string, env []string, stdout *bytes.Buffer, stderr *bytes.Buffer) *exec.Cmd {
 
-	// TODO: Not sure if the args must be expanded
+	// TODO: Not sure if expansion of args is a requirement
 	// expandedArgs := []string{}
 	// for _, arg := range args {
 	// 	expandedArgs = append(expandedArgs, os.ExpandEnv(arg))
@@ -183,5 +183,6 @@ func newCommand(ctx context.Context, command string, args []string, env []string
 
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
+
 	return cmd
 }

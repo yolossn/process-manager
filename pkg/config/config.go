@@ -16,9 +16,9 @@ type Config struct {
 // Command defines the config for a command.
 type Command struct {
 	Command    string   `json:"command" yaml:"command"`
+	MaxRetries int      `json:"maxRetries" yaml:"maxRetries"`
 	Args       []string `json:"args" yaml:"args"`
 	Envs       []env    `json:"envs" yaml:"envs"`
-	MaxRetries int      `json:"maxRetries" yaml:"maxRetries"`
 }
 
 type env struct {
@@ -32,6 +32,7 @@ func (c *Command) EnvStrings() []string {
 	for _, env := range c.Envs {
 		envStrings = append(envStrings, fmt.Sprintf("%s=%s", env.Key, env.Value))
 	}
+
 	return envStrings
 }
 
@@ -39,13 +40,14 @@ func (c *Command) EnvStrings() []string {
 func FromYaml(file string) (*Config, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error reading file")
+		return nil, errors.Wrap(err, "error reading file")
 	}
 
 	conf := Config{}
 	err = yaml.Unmarshal(content, &conf)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error unmarshalling config")
+		return nil, errors.Wrap(err, "error unmarshalling config")
 	}
+
 	return &conf, nil
 }

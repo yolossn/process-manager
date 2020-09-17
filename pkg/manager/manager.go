@@ -12,8 +12,8 @@ import (
 
 // Manager runs all the processes and allows to stop them.
 type Manager interface {
-	Run() chan struct{} // Runs all the process and returns a chan to signal completion of all processes
-	Stop()              // Stops all the process and returns
+	Run() chan struct{} // Runs all the process and returns a chan to signal completion of all processes.
+	Stop()              // Stops all the process and returns.
 	SuccessCount() int
 	FailCount() int
 	Status() map[string]status
@@ -50,7 +50,7 @@ func (m *manager) Run() chan struct{} {
 	// channel for processes to signal completion.
 	completeChan := make(chan *process.Process, 1)
 
-	// Handle SIGKILL and SIGINT
+	// Handle SIGKILL and SIGINT.
 	kill := make(chan os.Signal, 1)
 	signal.Notify(kill, os.Interrupt, os.Kill)
 	go func(chan os.Signal) {
@@ -61,12 +61,12 @@ func (m *manager) Run() chan struct{} {
 		os.Exit(1)
 	}(kill)
 
-	// Run all the process as goroutines
+	// Run all the process as goroutines.
 	for _, process := range m.processes {
 		go process.Run(completeChan)
 	}
 
-	// Go routine to monitor the processes
+	// Go routine to monitor the processes.
 	stop := make(chan struct{})
 	go func() {
 		for {
@@ -94,12 +94,12 @@ func (m *manager) Run() chan struct{} {
 			}
 		}
 	}()
+
 	return stop
 }
 
 // Stop all the processes and return.
 func (m *manager) Stop() {
-	// Stop all processes
 	for _, process := range m.processes {
 		go process.Stop()
 	}
@@ -127,7 +127,7 @@ type status struct {
 	IsSuccessful bool
 }
 
-// Status returns the status of each process as a map
+// Status returns the status of each process as a map.
 func (m *manager) Status() map[string]status {
 	outputs := make(map[string]status)
 
@@ -135,5 +135,6 @@ func (m *manager) Status() map[string]status {
 		processStatus := status{Output: process.Output(), Err: process.Error(), IsSuccessful: process.IsSuccessful()}
 		outputs[process.String()] = processStatus
 	}
+
 	return outputs
 }

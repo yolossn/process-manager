@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/yolossn/process-manager/pkg/config"
@@ -12,7 +13,7 @@ func main() {
 
 	conf, err := config.FromYaml("./config.yaml")
 	if err != nil {
-		panic(err)
+		log.Fatal("couldn't read config", err)
 	}
 
 	man := manager.New(conf.Commands)
