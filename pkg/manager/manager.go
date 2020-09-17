@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"syscall"
 
 	"github.com/yolossn/process-manager/pkg/config"
 	"github.com/yolossn/process-manager/pkg/process"
@@ -51,9 +50,9 @@ func (m *manager) Run() chan struct{} {
 	// channel for processes to signal completion.
 	completeChan := make(chan *process.Process, 1)
 
-	// Handle SIGKILL
+	// Handle SIGKILL and SIGINT
 	kill := make(chan os.Signal, 1)
-	signal.Notify(kill, os.Interrupt, os.Kill, syscall.SIGINT, syscall.SIGKILL)
+	signal.Notify(kill, os.Interrupt, os.Kill)
 	go func(chan os.Signal) {
 		<-kill
 		// debug
