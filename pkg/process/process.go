@@ -56,10 +56,12 @@ begin:
 	cmd := NewCommand(p.ctx, p.config.Command, p.config.Args, p.config.EnvStrings(), &stdout, &stderr)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	p.mu.Lock()
 	p.output = &stdout
 	p.err = &stderr
 	p.command = cmd
 	p.tryCount++
+	p.mu.Unlock()
 
 	// Run command
 	err := p.command.Run()
@@ -127,11 +129,15 @@ func (p *Process) IsSuccessful() bool {
 
 // Output returns the stdout of the command.
 func (p *Process) Output() string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.output.String()
 }
 
 // Error returns the stderr of the command.
 func (p *Process) Error() string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.err.String()
 }
 
