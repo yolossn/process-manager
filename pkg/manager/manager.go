@@ -106,7 +106,7 @@ func (m *manager) Stop() {
 	return
 }
 
-// SuccessCount returns the number of process which completed succesfully.
+// SuccessCount returns the number of process which completed successfully.
 func (m *manager) SuccessCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
