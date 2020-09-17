@@ -13,11 +13,11 @@ commands:
     envs:
       - key: PWD
         value: /Users/santhoshnagarajs/git/yolossn/proccess-manager
-    maxRetries: 100
+    maxRetries: 10
   - command: bash
     args:
       - -c
-      - sleep 1000
+      - sleep 10
     maxRetries: 2
   - command: ls
     maxRetries: 2
