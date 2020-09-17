@@ -1,0 +1,20 @@
+commands:
+  - command: bash
+    args:
+      - -c
+      - echo $PWD
+    maxRetries: 2
+  - command: bash
+    args:
+      - -c
+      - sleep 3
+    maxRetries: 3
+  - command: curl
+    args:
+      - https://postman-echo.com/get?foo=bar
+    maxRetries: 4
+  - command: bash
+    args:
+      - -c
+      - sleep 1 0
+    maxRetries: 2

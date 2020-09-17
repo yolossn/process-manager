@@ -1,5 +1,5 @@
 commands:
-  - command: "bash"
+  - command: bash
     args:
       - -c
       - echo $PWD
